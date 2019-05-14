@@ -6,11 +6,9 @@
 Python 3+
 Packages are defined [requirement.txt](requirement.txt) 
 
-##Usage
+## Usage
 
 
-##Build Instructions
+## Build Instructions
 
-        
-##Teamcity Project
 
