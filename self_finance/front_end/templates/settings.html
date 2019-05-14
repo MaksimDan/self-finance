@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+<h1> Settings </h1>
+<h1> Cache </h1>
+<form action="{{ url_for('invalidate_cache') }}" method="POST">
+    <button class="btn btn-primary" id="select_table" type="submit"> Invalidate Cache</button>
+</form>
+<br>
+
+{% endblock %}

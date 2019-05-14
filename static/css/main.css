@@ -1,0 +1,47 @@
+body {
+    margin-bottom: 10%;
+}
+
+/* /DATA */
+/* pagination */
+#nav {
+    padding-top: 1%;
+    padding-bottom: 4%;
+}
+
+/* actions */
+#data_action_container {
+    width: 100%;
+    text-align: center;
+}
+
+#left {
+    float: left;
+    width: 100px;
+}
+
+#center {
+    display: inline-block;
+    margin: 0 auto;
+    width: 100px;
+}
+
+#right {
+    float: right;
+    width: 100px;
+}
+
+/* REFERENCE */
+#ref_query_data_range {
+    width: 60%;
+}
+
+
+/* INSIGHTS */
+.insight_table {
+    width: 50%
+}
+
+#spending_vs_last_month_p {
+    width: 50%
+}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+<h1> Insights </h1>
+
+<h2> Dynamic Summaries </h2>
+
+<form action="{{ url_for('insights_dynamic') }}" method="POST">
+    {% include "forms/data_range.html" %}
+    <button class="btn btn-primary" id="select_table" type="submit"> Select</button>
+</form>
+<br>
+
+<h3> Bank Summary </h3>
+{% if html_df_summary %} {{ html_df_summary | safe}} {% endif %}
+
+<h3> Top Categories</h3>
+<h4> Income </h4>
+{% if html_top_inc_cat %} {{ html_top_inc_cat | safe }} {% endif %}
+<h4> Spending </h4>
+{% if html_top_exp_cat %} {{ html_top_exp_cat | safe }} {% endif %}
+
+<h2> Static Summaries </h2>
+<h3> This vs Last Month Income and Expenses </h3>
+{% if html_inc_and_exp_this_month_vs_last_month_summary %} {{ html_inc_and_exp_this_month_vs_last_month_summary | safe}} {% endif %}
+
+<div id="{{ spending_vs_last_month_pid }}">
+    <p>
+        {% if html_inc_and_exp_this_month_vs_last_month_summary_as_str %}
+        {{ html_inc_and_exp_this_month_vs_last_month_summary_as_str | safe }}
+        {% endif %}
+    </p>
+</div>
+
+{% endblock %}

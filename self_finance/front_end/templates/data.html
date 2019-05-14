@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+<h1> Data </h1>
+
+<!-- upload new csv data -->
+<form action="{{ url_for('data_upload') }}" enctype="multipart/form-data" method="POST">
+    <fieldset>
+        <legend> Merge New Data</legend>
+        <input name="file" style="display:inline;" type="file"/> <br>
+    </fieldset>
+    <button class="btn btn-primary" id="get_table" type="submit">Merge</button>
+</form>
+<br>
+
+<!-- query the table -->
+<form action="{{ url_for('data_query') }}" method="POST">
+    {% include "forms/data_range.html" %}
+    <fieldset>
+        <legend> Order by</legend>
+        Column Name: <input type="text" name="order_by_column_name" value="{{ order_by_column_name }}" required><br>
+        <input type="radio" name="order" value="ASC" {% if order_by == "ASC" %} checked="checked" {% endif %} required> ASC<br>
+        <input type="radio" name="order" value="DESC" {% if order_by == "DESC" %} checked="checked" {% endif %} required> DESC
+    </fieldset>
+    <button class="btn btn-primary" id="select_table" type="submit">Filter</button>
+</form>
+
+<!-- load db table if available -->
+{% if html_df %} {{ html_df | safe}} {% endif %}
+
+<div id="data_action_container">
+    <div id="left" style="float:left; width:100px;">
+        <!-- update db table -->
+        <form action="{{ url_for('data_update') }}" method="POST" name="update_form">
+            <input id="hidden_post_id" name="hidden_post_name" type="hidden" value=""/>
+            <button class="btn btn-primary" id="update_table" onclick="update_db()" type="button">Update</button>
+        </form>
+    </div>
+    <div id="right">
+        <!-- delete the database -->
+        <form action="{{ url_for('data_truncate') }}" method="POST" name="drop_table" onsubmit="return confirm('Are you sure you want to fully truncate this table?');"
+              style="float:right">
+            <button class="btn btn-danger" id="drop_table" style="float:right" type="submit">Truncate Table</button>
+        </form>
+    </div>
+    <div id="center">
+        <!-- download csv -->
+        <form action="{{ url_for('data_download') }}" method="POST" name="download_form" style="float:right">
+            <button class="btn btn-success" id="download_table" type="submit">Download as CSV</button>
+        </form>
+    </div>
+</div>
+
+<br><br>
+
+{% endblock %}
+
+
+{% block scripts %}
+{{super()}}
+
+<!-- add the contents of the html page to the input felt field of the form
+     (kind of hack to pass along html elements to the server -->
+<script type="text/javascript">
+    function update_db() {
+        // obj: add the table as HTML to a form element, and then submit that form,
+        // receiving the updated HTML table in the process as a POST request.
+        var table = document.getElementById('{{BANK_DATA_TABLE_ID}}');
+        if (typeof table != undefined) {
+            document.getElementById('hidden_post_id').value = table.outerHTML;
+            document.update_form.submit();
+        }
+    }
+</script>
+
+<!-- Paginate the html table -->
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#{{BANK_DATA_TABLE_ID}}').after('<div id="nav"></div>');
+        var rowsShown = 7;
+        var rowsTotal = $('#{{BANK_DATA_TABLE_ID}} tbody tr').length;
+        var numPages = rowsTotal / rowsShown;
+        for (i = 0; i < numPages; i++) {
+            var pageNum = i + 1;
+            $('#nav').append('<a href="#" rel="' + i + '" onclick="return false;">' + pageNum + '</a> ');
+        }
+        $('#{{BANK_DATA_TABLE_ID}} tbody tr').hide();
+        $('#{{BANK_DATA_TABLE_ID}} tbody tr').slice(0, rowsShown).show();
+        $('#nav a:first').addClass('active');
+        $('#nav a').bind('click', function () {
+
+            $('#nav a').removeClass('active');
+            $(this).addClass('active');
+            var currPage = $(this).attr('rel');
+            var startItem = currPage * rowsShown;
+            var endItem = startItem + rowsShown;
+            $('#{{BANK_DATA_TABLE_ID}} tbody tr').css('opacity', '0.0').hide().slice(startItem, endItem).css('display', 'table-row').animate({opacity: 1}, 300);
+        });
+    });
+</script>
+
+{% endblock %}

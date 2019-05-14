@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+<h1> Bank Credentials </h1>
+<button class="btn btn-primary" id="link-btn">Update Transactions</button>
+{% endblock %}
+
+
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script>
+<script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
+
+<script type="text/javascript">
+    (function ($) {
+        var products = '{{ plaid_products }}'.split(',');
+        if (products.includes('assets')) {
+            $('#assets').show();
+        }
+        var handler = Plaid.create({
+            apiVersion: 'v2',
+            clientName: 'Plaid Quickstart',
+            env: '{{ plaid_environment }}',
+            product: products,
+            key: '{{ plaid_public_key }}',
+            // webhook: 'https://your-domain.tld/plaid-webhook',
+            onSuccess: function (public_token) {
+                // when connecting with plain exchange the public token for an access token  
+                $.post('/index/update_transactions', {
+                    public_token: public_token
+                }, function (data) {
+                    $('#container').fadeOut('fast', function () {
+                        $('#item_id').text(data.item_id);
+                        $('#access_token').text(data.access_token);
+                        $('#intro').hide();
+                        $('#app, #steps').fadeIn('slow');
+                    });
+                });
+            },
+        });
+
+        $('#link-btn').on('click', function (e) {
+            handler.open();
+        });
+
+    })(jQuery);
+
+    function qs(key) {
+        key = key.replace(/[*+?^$.\[\]{}()|\\\/]/g, "\\$&"); // escape RegEx meta chars
+        var match = location.search.match(new RegExp("[?&]" + key + "=([^&]+)(&|$)"));
+        return match && decodeURIComponent(match[1].replace(/\+/g, " "));
+    }
+</script>
+{% endblock %}

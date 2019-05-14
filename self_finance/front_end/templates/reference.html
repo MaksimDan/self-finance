@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+<h1> Reference </h1>
+
+<h2> Filtering Data by Date </h2>
+
+<ul class="list-group" id="ref_query_data_range">
+    <li class="list-group-item active">The following intelligent parsing is supported</li>
+    <li class="list-group-item"><kbd>min</kbd> from the beginning of time</li>
+    <li class="list-group-item"><kbd>max</kbd> from the end of time</li>
+    <li class="list-group-item"><kbd>today</kbd> today</li>
+    <li class="list-group-item"><kbd>yesterday</kbd> yesterday</li>
+    <li class="list-group-item"><kbd>\d+ year.? ago</kbd> x years ago</li>
+    <li class="list-group-item"><kbd>\d+ month.? ago</kbd> x months ago</li>
+    <li class="list-group-item"><kbd>\d+ week.? ago</kbd> x weeks ago</li>
+    <li class="list-group-item"><kbd>\d+ day.? ago</kbd> x days ago</li>
+    <li class="list-group-item"><kbd>\d+ year.? ahead</kbd> x years ahead</li>
+    <li class="list-group-item"><kbd>\d+ month.? ahead</kbd> x months ahead</li>
+    <li class="list-group-item"><kbd>\d+ week.? ahead</kbd> x weeks ahead</li>
+    <li class="list-group-item"><kbd>\d+ day.? ahead</kbd> x days ahead</li>
+</ul>
+
+{% endblock %}
