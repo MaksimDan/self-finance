@@ -17,7 +17,7 @@ setuptools.setup(
     url="https://github.com/MaksimDan/self-finance",
     packages=setuptools.find_packages(),
     entry_points={
-        'console_scripts': ['self-finance=cli.cl:run_from_command_line'],
+        'console_scripts': ['self-finance=cli.__main__:run_from_command_line'],
     },
     classifiers=[
         "Programming Language :: Python :: 3",
