@@ -16,7 +16,7 @@ setuptools.setup(
     keywords='bank, finance, money, personal, growth, projections',
     url="https://github.com/MaksimDan/self-finance",
     packages=setuptools.find_packages(),
-    scripts=['bin/run'],
+    scripts=['./run'],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",

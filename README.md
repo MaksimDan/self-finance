@@ -25,7 +25,7 @@ TODO - gif of the interface
    cd tmp
    git clone https://github.com/MaksimDan/self-finance.git
    pip install -r self-finance/requirements.txt
-   pip install self-finance
+   pip install ./self-finance
    rm -rf ~/Desktop/tmp
    ```
 
@@ -48,7 +48,7 @@ TODO - gif of the interface
 
 ```bash
 source self-finance/bin/activate
-
+self-finance run
 ```
 
 ## Contributing
