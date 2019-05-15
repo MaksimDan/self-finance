@@ -26,7 +26,7 @@ TODO - gif of the interface
    git clone https://github.com/MaksimDan/self-finance.git
    pip install -r self-finance/requirements.txt
    pip install ./self-finance
-   rm -rf ~/Desktop/tmp
+   rm -rf ~/Desktop/tmp # dont do this? keep somewhere safe for updates (nd reinstall, add information for updating)
    ```
 
 5. Go to plaid.com and request a developors license. Once your request is approved, export them as path variables onto your machine.
