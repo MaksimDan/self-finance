@@ -1,17 +1,25 @@
-import os
+import setuptools
 
-from setuptools import setup, find_packages
 
-with open(os.path.join(os.path.dirname(__file__), 'VERSION'), 'r') as version_file:
-    setup(
-        name='self_finance',
-        version=version_file.read().strip(),
-        packages=find_packages(),
-        author='Daniel Maksimovich',
-        author_email='maksimovich.daniel@gmail.com',
-        description='Analyze your finances transparently',
-        keywords='bank, finance, money, personal, growth, projections',
-        include_package_data=True,
-        install_requires=['flask'],
-        scripts=['bin/run'],
-    )
+with open("README.md", "r") as fh:
+    long_description = fh.read()
+
+setuptools.setup(
+    name='self_finance',
+    version="0.0.1",
+    author='Daniel Maksimovich',
+    author_email='maksimovich.daniel@gmail.com',
+    description='Analyze your finances transparently',
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    include_package_data=True,
+    keywords='bank, finance, money, personal, growth, projections',
+    url="https://github.com/MaksimDan/self-finance",
+    packages=setuptools.find_packages(),
+    scripts=['bin/run'],
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+    ],
+)
