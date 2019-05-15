@@ -12,5 +12,6 @@ with open(os.path.join(os.path.dirname(__file__), 'VERSION'), 'r') as version_fi
         description='Analyze your finances transparently',
         keywords='bank, finance, money, personal, growth, projections',
         include_package_data=True,
-        install_requires=['flask']
+        install_requires=['flask'],
+        scripts=['bin/run'],
     )
