@@ -1,4 +1,4 @@
-from app_setup import run_app
+from self_finance.app_setup import run_app
 
 
 if __name__ == "__main__":
