@@ -5,7 +5,7 @@ from self_finance import utils
 from self_finance.constants import Schema
 
 
-ROOT = os.getcwd()
+ROOT = os.path.join(os.getcwd(), '..')
 
 dirs = utils.SelfReferentialDict({
     'static': join(ROOT, 'static'),
