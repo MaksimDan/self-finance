@@ -12,7 +12,7 @@ handlers:
   file:
     class: logging.FileHandler
     formatter: default
-    filename: ../logs/default.log
+    filename: ./logs/default.log
     mode: w
     level: INFO
 root:

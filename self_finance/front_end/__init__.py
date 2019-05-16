@@ -4,7 +4,7 @@ from flask_bootstrap import Bootstrap
 from config.files import dirs
 from self_finance.constants import App
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder=dirs['template_folder'])
 bootstrap = Bootstrap(app)
 app.secret_key = App.SECRET_KEY
 app._static_folder = dirs['static']

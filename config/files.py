@@ -5,14 +5,15 @@ from self_finance import utils
 from self_finance.constants import Schema
 
 
-ROOT = os.path.join(os.getcwd(), '..')
+ROOT = os.getcwd()
 
 dirs = utils.SelfReferentialDict({
     'static': join(ROOT, 'static'),
     'data_scratch': join('{static}', 'scratch'),
     'models': join('{static}', 'models'),
     'insights': join('{static}', 'insights'),
-    'logs': join(ROOT, 'logs')
+    'logs': join(ROOT, 'logs'),
+    'template_folder': join(ROOT, os.path.join('self_finance', 'front_end', 'templates'))
 })
 
 files = utils.SelfReferentialDict({
