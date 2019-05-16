@@ -1,6 +1,6 @@
 # self-finance
 
-self-finance is a local python web application for providing analytical insights on your bank transactions.
+self-finance is a local python web application for providing analytical insights on your bank transactions. (click to watch)
 
 [![self-finance demo](http://i3.ytimg.com/vi/_IIMtb0O5QE/maxresdefault.jpg)](https://youtu.be/_IIMtb0O5QE "self-finance demo")
 
