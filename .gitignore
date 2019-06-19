@@ -94,5 +94,8 @@ ENV/
 # self
 sandbox/
 tests/
-todo.md
 sql/self_finance.db
+/bin
+pip-selfcheck.json
+pyvenv.cfg
+

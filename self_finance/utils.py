@@ -8,7 +8,7 @@ from pathlib import Path
 import pandas as pd
 from faker import Faker
 
-from self_finance.constants import Schema
+from self_finance.constants import BankSchema
 
 logger = logging.getLogger(__name__)
 
@@ -97,9 +97,9 @@ def anon_the_data(csv_path_in, csv_path_out, replacements=None):
     obj: one time type of use function to anonymize bank test data
     """
     f = Faker()
-    replace = replacements or {Schema.SCHEMA_BANK_ACCOUNT_ID.name: f.random_int(0, 3),
-                               Schema.SCHEMA_BANK_AMOUNT.name: f.random_int(0, 10000),
-                               Schema.SCHEMA_BANK_TRANSACTION_ID: f.random_int()}
+    replace = replacements or {BankSchema.SCHEMA_BANK_ACCOUNT_ID.name: f.random_int(0, 3),
+                               BankSchema.SCHEMA_BANK_AMOUNT.name: f.random_int(0, 10000),
+                               BankSchema.SCHEMA_BANK_TRANSACTION_ID: f.random_int()}
     new_rows = []
     with open(csv_path_in, 'r') as fp:
         dr = DictReader(fp)

@@ -18,10 +18,10 @@ def settings():
 
 
 @app.route('/settings/invalidate_cache', methods=['POST', 'GET'])
-def invalidate_cache(flash=True):
+def invalidate_cache(flash_message=True):
     logging.info('Invalidating cache.')
     if request.method == 'POST':
         Data.invalidate_cache()
-        if flash:
+        if flash_message:
             flash('Cache was successfully invalidated.', 'info')
     return _standard_render()

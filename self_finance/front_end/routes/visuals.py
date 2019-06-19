@@ -6,10 +6,10 @@ from self_finance.back_end.data import Data
 from self_finance.back_end.date_range import DateRange
 from self_finance.back_end.insights.image_registry import ImageRegistry
 from self_finance.constants import Html
-from self_finance.constants import Schema
+from self_finance.constants import BankSchema
 from self_finance.constants import Visuals
 from self_finance.front_end import app
-from self_finance.front_end.routes._commons import valid_dr
+from self_finance.front_end.routes.commons import valid_dr
 from self_finance.front_end.routes.state import State
 
 logger = logging.getLogger(__name__)
@@ -71,9 +71,9 @@ def visuals_redraw():
         requested_plots_to_draw = set(ImageRegistry.get_all_plot_ids()) & set(form.keys())
         _update_requested_plots_to_draw(set(requested_plots_to_draw))
         df = Data.get_table_as_df(DateRange(State.date_range_start, State.date_range_end),
-                                  table_name=Schema.BANK_TB_NAME)
+                                  table_name=BankSchema.BANK_TB_NAME)
         if df is None or df.shape[0] == 0:
-            flash(f'No data int table {Schema.BANK_TB_NAME} produce diagrams.', 'warning')
+            flash(f'No data int table {BankSchema.BANK_TB_NAME} produce diagrams.', 'warning')
         else:
             ImageRegistry.plot_all(list(requested_plots_to_draw), df, drs, dre)
     return _standard_render()

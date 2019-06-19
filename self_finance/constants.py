@@ -1,13 +1,22 @@
 from os import environ
 
 
-class _Schema:
+class Schema:
     def __init__(self, name, type):
         self.name = name
         self.type = type
 
     def __dict__(self):
         return {self.name: self.type}
+
+    @staticmethod
+    def get_names(schema_list, sort=True):
+        names = [schema.name for schema in schema_list]
+        return sorted(names) if sort else names
+
+    @staticmethod
+    def get_types(schema_list):
+        return [schema.type for schema in schema_list]
 
 
 class _Flash:
@@ -66,7 +75,7 @@ class Html:
 
 
 # note: _ prefix schema elements are hidden explicitly because they are auto fields such as auto increment
-class Schema:
+class BankSchema:
     # databases and tables
     BASE_DB_NAME = 'self_finance.db'
 
@@ -77,61 +86,61 @@ class Schema:
     PLOT_CACHE_TB_NAME = 'plot_cache'
 
     # original table - untouched
-    SCHEMA_FULL_ACCOUNT_ID = _Schema('account_id', str)
-    SCHEMA_FULL_ACCOUNT_OWNER = _Schema('account_owner', str)
-    SCHEMA_FULL_AMOUNT = _Schema('amount', float)
-    SCHEMA_FULL_CATEGORY = _Schema('category', str)
-    SCHEMA_FULL_CATEGORY_ID = _Schema('category_id', int)
-    SCHEMA_FULL_DATE = _Schema('date', str)
-    SCHEMA_FULL_ISO_CURRENCY_CODE = _Schema('iso_currency_code', str)
-    SCHEMA_FULL_LOCATION = _Schema('location', str)
-    SCHEMA_FULL_NAME = _Schema('name', str)
-    SCHEMA_FULL_PAYMENT_META = _Schema('payment_meta', str)
-    SCHEMA_FULL_PENDING = _Schema('pending', bool)
-    SCHEMA_FULL_PENDING_TRANSACTION_ID = _Schema('pending_transaction_id', str)
-    SCHEMA_FULL_TRANSACTION_ID = _Schema('transaction_id', str)
-    SCHEMA_FULL_TRANSACTION_TYPE = _Schema('transaction_type', str)
-    SCHEMA_FULL_UNOFFICIAL_CURRENCY_CODE = _Schema('unofficial_currency_code', str)
+    SCHEMA_FULL_ACCOUNT_ID = Schema('account_id', str)
+    SCHEMA_FULL_ACCOUNT_OWNER = Schema('account_owner', str)
+    SCHEMA_FULL_AMOUNT = Schema('amount', float)
+    SCHEMA_FULL_CATEGORY = Schema('category', str)
+    SCHEMA_FULL_CATEGORY_ID = Schema('category_id', int)
+    SCHEMA_FULL_DATE = Schema('date', str)
+    SCHEMA_FULL_ISO_CURRENCY_CODE = Schema('iso_currency_code', str)
+    SCHEMA_FULL_LOCATION = Schema('location', str)
+    SCHEMA_FULL_NAME = Schema('name', str)
+    SCHEMA_FULL_PAYMENT_META = Schema('payment_meta', str)
+    SCHEMA_FULL_PENDING = Schema('pending', bool)
+    SCHEMA_FULL_PENDING_TRANSACTION_ID = Schema('pending_transaction_id', str)
+    SCHEMA_FULL_TRANSACTION_ID = Schema('transaction_id', str)
+    SCHEMA_FULL_TRANSACTION_TYPE = Schema('transaction_type', str)
+    SCHEMA_FULL_UNOFFICIAL_CURRENCY_CODE = Schema('unofficial_currency_code', str)
 
     # main public table - after some preprocessing on full table
-    SCHEMA_BANK_ACCOUNT_ID = _Schema('account_id', str)
-    SCHEMA_BANK_AMOUNT = _Schema('amount', float)
-    SCHEMA_BANK_C1 = _Schema('c1', str)
-    SCHEMA_BANK_C2 = _Schema('c2', str)
-    SCHEMA_BANK_C3 = _Schema('c3', str)
-    SCHEMA_BANK_DATE = _Schema('date', str)
-    SCHEMA_BANK_INC_OR_EXP = _Schema('inc_or_exp', str)
-    SCHEMA_BANK_NAME = _Schema('name', str)
-    SCHEMA_BANK_TRANSACTION_ID = _Schema('transaction_id', str)
+    SCHEMA_BANK_ACCOUNT_ID = Schema('account_id', str)
+    SCHEMA_BANK_AMOUNT = Schema('amount', float)
+    SCHEMA_BANK_C1 = Schema('c1', str)
+    SCHEMA_BANK_C2 = Schema('c2', str)
+    SCHEMA_BANK_C3 = Schema('c3', str)
+    SCHEMA_BANK_DATE = Schema('date', str)
+    SCHEMA_BANK_INC_OR_EXP = Schema('inc_or_exp', str)
+    SCHEMA_BANK_NAME = Schema('name', str)
+    SCHEMA_BANK_TRANSACTION_ID = Schema('transaction_id', str)
 
     # location index to main table
-    SCHEMA_LOCATION_ADDRESS = _Schema('address', str)
-    SCHEMA_LOCATION_CITY = _Schema('city', str)
-    SCHEMA_LOCATION_LAT = _Schema('lat', float)
-    SCHEMA_LOCATION_LON = _Schema('lon', float)
-    SCHEMA_LOCATION_STATE = _Schema('state', str)
-    SCHEMA_LOCATION_STORE_NUMBER = _Schema('store_number', int)
-    SCHEMA_LOCATION_TRANSACTION_ID = _Schema('transaction_id', int)
-    SCHEMA_LOCATION_ZIP = _Schema('zip', int)
+    SCHEMA_LOCATION_ADDRESS = Schema('address', str)
+    SCHEMA_LOCATION_CITY = Schema('city', str)
+    SCHEMA_LOCATION_LAT = Schema('lat', float)
+    SCHEMA_LOCATION_LON = Schema('lon', float)
+    SCHEMA_LOCATION_STATE = Schema('state', str)
+    SCHEMA_LOCATION_STORE_NUMBER = Schema('store_number', int)
+    SCHEMA_LOCATION_TRANSACTION_ID = Schema('transaction_id', int)
+    SCHEMA_LOCATION_ZIP = Schema('zip', int)
 
     # payment meta index to public table
-    SCHEMA_PAYMENT_META_BY_ORDER_OF = _Schema('by_order_of', str)
-    SCHEMA_PAYMENT_META_PAYEE = _Schema('payee', str)
-    SCHEMA_PAYMENT_META_PAYER = _Schema('payer', str)
-    SCHEMA_PAYMENT_META_PAYMENT_METHOD = _Schema('payment_method', str)
-    SCHEMA_PAYMENT_META_PAYMENT_PROCESSOR = _Schema('payment_processor', str)
-    SCHEMA_PAYMENT_META_PAYMENT_REFERENCE_NUMBER = _Schema('reference_number', str)
-    SCHEMA_PAYMENT_META_PPD_ID = _Schema('ppd_id', int)
-    SCHEMA_PAYMENT_META_REASON = _Schema('reason', str)
-    SCHEMA_PAYMENT_META_TRANSACTION_ID = _Schema('transaction_id', int)
+    SCHEMA_PAYMENT_META_BY_ORDER_OF = Schema('by_order_of', str)
+    SCHEMA_PAYMENT_META_PAYEE = Schema('payee', str)
+    SCHEMA_PAYMENT_META_PAYER = Schema('payer', str)
+    SCHEMA_PAYMENT_META_PAYMENT_METHOD = Schema('payment_method', str)
+    SCHEMA_PAYMENT_META_PAYMENT_PROCESSOR = Schema('payment_processor', str)
+    SCHEMA_PAYMENT_META_PAYMENT_REFERENCE_NUMBER = Schema('reference_number', str)
+    SCHEMA_PAYMENT_META_PPD_ID = Schema('ppd_id', int)
+    SCHEMA_PAYMENT_META_REASON = Schema('reason', str)
+    SCHEMA_PAYMENT_META_TRANSACTION_ID = Schema('transaction_id', int)
 
     # plot cache
-    SCHEMA_PLOT_CACHE_END_DATE = _Schema('end_date', str)
-    SCHEMA_PLOT_CACHE_FULL_TITLE = _Schema('full_title', str)
-    SCHEMA_PLOT_CACHE_HTML = _Schema('html', str)
-    SCHEMA_PLOT_CACHE_LOOKUP_DATE = _Schema('lookup_date', str)
-    SCHEMA_PLOT_CACHE_START_DATE = _Schema('start_date', str)
-    _SCHEMA_PLOT_CACHE_TIMESTAMP = _Schema('timestamp', str)
+    SCHEMA_PLOT_CACHE_END_DATE = Schema('end_date', str)
+    SCHEMA_PLOT_CACHE_FULL_TITLE = Schema('full_title', str)
+    SCHEMA_PLOT_CACHE_HTML = Schema('html', str)
+    SCHEMA_PLOT_CACHE_LOOKUP_DATE = Schema('lookup_date', str)
+    SCHEMA_PLOT_CACHE_START_DATE = Schema('start_date', str)
+    _SCHEMA_PLOT_CACHE_TIMESTAMP = Schema('timestamp', str)
 
     # misc
     # note - this date format is nessessary for datetime to be able to parse
@@ -144,11 +153,11 @@ class Schema:
         obj: return group of static constants in this class that are a product of a common string pattern
         """
         return {
-            Schema._FULL_TB_NAME: 'SCHEMA_FULL',
-            Schema.LOCATION_TB_NAME: 'SCHEMA_LOCATION',
-            Schema.PAYMENT_META_TB_NAME: 'SCHEMA_PAYMENT_META',
-            Schema.BANK_TB_NAME: 'SCHEMA_BANK',
-            Schema.PLOT_CACHE_TB_NAME: 'SCHEMA_PLOT_CACHE',
+            BankSchema._FULL_TB_NAME: 'SCHEMA_FULL',
+            BankSchema.LOCATION_TB_NAME: 'SCHEMA_LOCATION',
+            BankSchema.PAYMENT_META_TB_NAME: 'SCHEMA_PAYMENT_META',
+            BankSchema.BANK_TB_NAME: 'SCHEMA_BANK',
+            BankSchema.PLOT_CACHE_TB_NAME: 'SCHEMA_PLOT_CACHE',
             'all_tables': 'TB_NAME'
         }[key]
 
@@ -157,28 +166,20 @@ class Schema:
         """
         obj: return the schema object types for a table_id
         """
-        return [v for k, v in Schema.__dict__.items() if k.startswith(Schema.__const_groups_get(tb_name))
+        return [v for k, v in BankSchema.__dict__.items() if k.startswith(BankSchema.__const_groups_get(tb_name))
                 and not k.startswith('_')]
 
     @staticmethod
-    def get_names(schema_list, sort=True):
-        names = [schema.name for schema in schema_list]
-        return sorted(names) if sort else names
-
-    @staticmethod
-    def get_types(schema_list):
-        return [schema.type for schema in schema_list]
-
-    @staticmethod
     def get_pk_fields(tb_name):
-        if tb_name == Schema._FULL_TB_NAME or tb_name == Schema.BANK_TB_NAME:
-            return [Schema.SCHEMA_BANK_DATE,
-                    Schema.SCHEMA_BANK_AMOUNT,
-                    Schema.SCHEMA_BANK_C1,
-                    Schema.SCHEMA_BANK_C2,
-                    Schema.SCHEMA_BANK_NAME]
+        if tb_name == BankSchema._FULL_TB_NAME or tb_name == BankSchema.BANK_TB_NAME:
+            return [BankSchema.SCHEMA_BANK_DATE,
+                    BankSchema.SCHEMA_BANK_AMOUNT,
+                    BankSchema.SCHEMA_BANK_C1,
+                    BankSchema.SCHEMA_BANK_C2,
+                    BankSchema.SCHEMA_BANK_NAME]
 
     @staticmethod
     def get_all_table_names():
-        return [v for k, v in Schema.__dict__.items()
-                if Schema.__const_groups_get('all_tables') in k and not k.startswith('_')]
+        return [v for k, v in BankSchema.__dict__.items()
+                if BankSchema.__const_groups_get('all_tables') in k and not k.startswith('_')]
+

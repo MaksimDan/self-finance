@@ -20,8 +20,8 @@ source ~/.bash_profile
 
 git clone https://github.com/MaksimDan/self-finance.git
 cd self-finance/
-python3 -m venv .
-source bin/activate
+python3 -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt 
 pip install .
 self-finance
@@ -60,7 +60,7 @@ self-finance
    ```bash
    vim ~/.bash_profile
    # add the following
-   PATH="/Library/Frameworks/Python.framework/Versions/3.<your version>/bin:${PATH}"
+   PATH="/Library/Frameworks/Python.framework/Versions/3.x>/bin:${PATH}"
    export PATH=/usr/local/bin:/usr/local/sbin:$PATH
    ```
 
@@ -74,9 +74,16 @@ self-finance
 
    ```bash
    cd self-finance/
-   python3 -m venv .
-   source bin/activate
+   python3 -m venv venv
+   source venv/bin/activate
    ```
+
+7. Verify that your virtual environment has the correct python version
+
+    ```bash
+    python3 --version
+    Python 3.x.x
+    ```
 
 7. Install the package requirements and the web app itself
 

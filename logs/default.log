@@ -1,0 +1,4 @@
+[2019-06-19 01:53:08,608] INFO in app_setup: Beginning self-finance application.
+[2019-06-19 01:53:08,617] INFO in _internal:  * Running on http://127.0.0.1:5001/ (Press CTRL+C to quit)
+[2019-06-19 01:53:10,837] INFO in _internal: 127.0.0.1 - - [19/Jun/2019 01:53:10] "GET / HTTP/1.1" 200 -
+[2019-06-19 01:53:13,318] INFO in _internal: 127.0.0.1 - - [19/Jun/2019 01:53:13] "GET /data HTTP/1.1" 200 -

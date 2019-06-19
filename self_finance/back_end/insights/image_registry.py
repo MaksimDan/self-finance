@@ -8,7 +8,7 @@ from threading import Thread
 from self_finance.back_end.date_range import DateRange
 from self_finance.back_end.insights._plot import _Plot
 from self_finance.back_end.plot_cache import PlotCache
-from self_finance.constants import Schema
+from self_finance.constants import BankSchema
 from self_finance.constants import Visuals
 
 logger = logging.getLogger(__name__)
@@ -24,32 +24,32 @@ class ImageRegistry:
         'Income vs Expenses Over Time': {
             'func': _Plot.income_vs_expenses_over_time,
             'supported_plots': {'line', 'bar', 'violin'},
-            'figsize': (9, 8)
+            'figsize': (11, 8)
         },
         'Income by Category': {
             'func': _Plot.income_by_category,
             'supported_plots': {'line', 'bar', 'violin'},
-            'figsize': (9, 5)
+            'figsize': (11, 5)
         },
         'Expenses by Category': {
             'func': _Plot.expenses_by_category,
             'supported_plots': {'line', 'bar', 'violin'},
-            'figsize': (9, 5)
+            'figsize': (11, 5)
         },
         'Frequency of Transactions by Category': {
             'func': _Plot.transactional_frequency_over_time,
             'supported_plots': {'line', 'bar'},
-            'figsize': (9, 5)
+            'figsize': (11, 5)
         },
         'Income by Month': {
             'func': _Plot.income_by_month,
             'supported_plots': {'bar'},
-            'figsize': (9, 5)
+            'figsize': (11, 5)
         },
         'Expenses by Month': {
             'func': _Plot.expenses_by_month,
             'supported_plots': {'bar'},
-            'figsize': (9, 5)
+            'figsize': (11, 5)
         },
         'Spending Heatmap': {
             'func': _Plot.spending_heatmap,
@@ -97,7 +97,7 @@ class ImageRegistry:
     @staticmethod
     def plot_all(plot_ids, df, start_date, end_date):
         threads = []
-        df = df.sort_values(by=Schema.SCHEMA_BANK_DATE.name)
+        df = df.sort_values(by=BankSchema.SCHEMA_BANK_DATE.name)
         semaphor_pool = BoundedSemaphore(value=Visuals.PLOT_MAX_THREADS)
         logging.info(f'Beginning plotting using {Visuals.PLOT_MAX_THREADS} threads.')
         for plt_id in plot_ids:
@@ -127,7 +127,7 @@ class ImageRegistry:
     def __plot(plot_basis, start_date, end_date, plot_type=None, df=None):
         # check if we've plotted this same plot in the past before
         kwargs = {}
-        now = datetime.datetime.now().strftime(Schema.DATE_FORMAT2)
+        now = datetime.datetime.now().strftime(BankSchema.DATE_FORMAT2)
         title = ImageRegistry._make_plot_key_title(plot_basis, plot_type)
         plot_cache_result = PlotCache.hit(title, start_date, end_date, now)
         if plot_cache_result is None:
@@ -146,7 +146,7 @@ class ImageRegistry:
             # is figure
             if fig_or_html is not None and not isinstance(fig_or_html, str):
                 stream_reader = StringIO()
-                fig_or_html.savefig(stream_reader, format='svg')
+                fig_or_html.savefig(stream_reader, format='svg', bbox_inches='tight')
                 stream_reader.seek(0)
                 html = stream_reader.getvalue()
                 PlotCache.add_cache_miss(title, start_date, end_date, now, html)

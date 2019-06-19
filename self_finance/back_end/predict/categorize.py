@@ -10,7 +10,7 @@ from config.files import files
 from self_finance.back_end.data import Data
 from self_finance.back_end.predict.bank_classifier import BankClassifier
 from self_finance.back_end.sqlite_helper import SqliteHelper
-from self_finance.constants import Schema
+from self_finance.constants import BankSchema
 
 logger = logging.getLogger(__name__)
 
@@ -32,8 +32,8 @@ class Categorize:
             logger.info('No rows identified to categorize.')
             return
 
-        model_c1 = self.classifier.get_model(Schema.BASE_MODEL_C1_NAME)
-        model_c2 = self.classifier.get_model(Schema.BASE_MODEL_C2_NAME)
+        model_c1 = self.classifier.get_model(BankSchema.BASE_MODEL_C1_NAME)
+        model_c2 = self.classifier.get_model(BankSchema.BASE_MODEL_C2_NAME)
         user_c1_cats, user_c2_cats = [], []
         if not auto_fill_with_model_suggestion:
             print(">> Current Categories::")
@@ -62,7 +62,7 @@ class Categorize:
             user_c1_cats.append(category_c1 if bool(category_c1) or not suggestion_c1 else suggestion_c1)
             user_c2_cats.append(category_c2 if bool(category_c2) or not suggestion_c2 else suggestion_c2)
 
-        pk_fields, cat_fields = Schema.get_pk_fields(), Schema.get_table_chase_y_fields()
+        pk_fields, cat_fields = BankSchema.get_pk_fields(), BankSchema.get_table_chase_y_fields()
         filled_cat_df = missing_cat_df[pk_fields]
         pd.options.mode.chained_assignment = None
         filled_cat_df[cat_fields[0]] = user_c1_cats
@@ -75,9 +75,9 @@ class Categorize:
         """
         if self.current_categories_dict:
             return self.current_categories_dict
-        cat_fields = Schema.get_table_chase_y_fields()
+        cat_fields = BankSchema.get_table_chase_y_fields()
         query = f"SELECT DISTINCT {','.join(cat_fields)}\n" \
-            f"FROM {Schema.TABLE_NAME_CHASE_DEBIT}\n"
+            f"FROM {BankSchema.TABLE_NAME_CHASE_DEBIT}\n"
         _df_dict = SqliteHelper.execute_sqlite(query, files['base_db'], as_dataframe=True).to_dict('record')
         root_d = defaultdict(set)
         for d in _df_dict:

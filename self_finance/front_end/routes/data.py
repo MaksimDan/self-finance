@@ -12,9 +12,10 @@ from self_finance.back_end.date_range import DateRange
 from self_finance.back_end.insights.html_helper import HTMLHelper
 from self_finance.constants import Data as ConstData
 from self_finance.constants import Defaults
+from self_finance.constants import BankSchema
 from self_finance.constants import Schema
 from self_finance.front_end import app
-from self_finance.front_end.routes._commons import valid_dr
+from self_finance.front_end.routes.commons import valid_dr
 from self_finance.front_end.routes.insights import refresh_dynamic_insights
 from self_finance.front_end.routes.insights import refresh_static_insights
 from self_finance.front_end.routes.settings import invalidate_cache
@@ -24,11 +25,11 @@ logger = logging.getLogger(__name__)
 
 
 class DataState(State):
-    order_by_column_name = Schema.SCHEMA_BANK_DATE.name
+    order_by_column_name = BankSchema.SCHEMA_BANK_DATE.name
     order_by = Defaults.ORDER_BY_DEFAULT
 
     html_df = HTMLHelper.as_html_form_from_sql(
-        Schema.BANK_TB_NAME, DateRange(State.date_range_start, State.date_range_end),
+        BankSchema.BANK_TB_NAME, DateRange(State.date_range_start, State.date_range_end),
         order_by_column_name, order_by, table_id=ConstData.BANK_DATA_TABLE_ID)
 
     @staticmethod
@@ -49,7 +50,7 @@ def data():
 
 def update_html_df():
     DataState.html_df = HTMLHelper.as_html_form_from_sql(
-        Schema.BANK_TB_NAME, DateRange(State.date_range_start, State.date_range_end),
+        BankSchema.BANK_TB_NAME, DateRange(State.date_range_start, State.date_range_end),
         DataState.order_by_column_name, DataState.order_by, table_id=ConstData.BANK_DATA_TABLE_ID)
 
 
@@ -60,7 +61,7 @@ def data_query():
 
         # check validity of input queries
         obcn, o = form['order_by_column_name'], form['order']
-        if obcn not in set(Schema.get_names(Schema.get_schema_table(Schema.BANK_TB_NAME))):
+        if obcn not in set(Schema.get_names(BankSchema.get_schema_table(BankSchema.BANK_TB_NAME))):
             flash(f'{obcn} is not a valid column name.', 'warning')
             return _standard_render()
 
@@ -79,7 +80,7 @@ def data_query():
             flash(f'Invalid column name {DataState.order_by_column_name}', 'danger')
             return _standard_render()
         flash(f'Data filtered between dates {State.date_range_start} and {State.date_range_end}.\n'
-              f'{Schema.BANK_TB_NAME} table has had its order updated by '
+              f'{BankSchema.BANK_TB_NAME} table has had its order updated by '
               f'{DataState.order_by_column_name} {DataState.order_by}', 'info')
     return _standard_render()
 
@@ -118,7 +119,7 @@ def data_update():
     if request.method == 'POST':
         form = request.form
         update_df = pd.read_html(form['hidden_post_name'], header=0, index_col=0, parse_dates=True)[0]
-        update_df = Data.cast_df_to_schema(update_df, Schema.BANK_TB_NAME)
+        update_df = Data.cast_df_to_schema(update_df, BankSchema.BANK_TB_NAME)
         Data.merge(update_df)
         update_html_df()
         invalidate_cache(flash=False)
@@ -136,7 +137,7 @@ def data_truncate():
         invalidate_cache(flash=False)
         refresh_dynamic_insights()
         refresh_static_insights(ignore_clock=True)
-        flash(f"{Schema.BANK_TB_NAME} table has been fully truncated from the base database.", 'info')
+        flash(f"{BankSchema.BANK_TB_NAME} table has been fully truncated from the base database.", 'info')
     return _standard_render()
 
 
@@ -146,9 +147,9 @@ def data_download():
         logger.info('Downloading bank data as csv file.')
         with tempfile.TemporaryDirectory() as tmpdir:
             dr = DateRange(State.date_range_start, State.date_range_end)
-            bank_df = Data.get_table_as_df(dr, Schema.BANK_TB_NAME, DataState.order_by_column_name, DataState.order_by)
+            bank_df = Data.get_table_as_df(dr, BankSchema.BANK_TB_NAME, DataState.order_by_column_name, DataState.order_by)
             if bank_df is None or bank_df.shape[0] == 0:
-                flash(f'{Schema.BANK_TB_NAME} table is empty. Nothing to download.', 'warning')
+                flash(f'{BankSchema.BANK_TB_NAME} table is empty. Nothing to download.', 'warning')
                 return _standard_render()
             bank_df.to_csv(os.path.join(tmpdir, ConstData.FILE_NAME_DOWNLOAD), index=False)
             return send_from_directory(directory=tmpdir, filename=ConstData.FILE_NAME_DOWNLOAD, as_attachment=True)

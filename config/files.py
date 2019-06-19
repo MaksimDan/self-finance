@@ -2,7 +2,7 @@ import os
 from os.path import join
 
 from self_finance import utils
-from self_finance.constants import Schema
+from self_finance.constants import BankSchema
 
 
 ROOT = os.getcwd()
@@ -18,7 +18,7 @@ dirs = utils.SelfReferentialDict({
 
 files = utils.SelfReferentialDict({
     'log_config': join(ROOT, 'config', 'log.yml'),
-    'base_db': join(ROOT, 'sql', Schema.BASE_DB_NAME),
+    'base_db': join(ROOT, 'sql', BankSchema.BASE_DB_NAME),
     'create_db': join(ROOT, 'sql', 'create_db.sql'),
 })
 
@@ -35,5 +35,5 @@ test_files = utils.SelfReferentialDict({
     'full_sample.csv': join(test_dirs['test_resources'], 'full_sample.csv'),
     'transaction_response_dict.pickle': join(test_dirs['test_resources'], 'transaction_response_dict.pickle'),
     'create_db': join(test_dirs['sql'], 'create_db.sql'),
-    'base_db': join(test_dirs['sql'], Schema.BASE_DB_NAME)
+    'base_db': join(test_dirs['sql'], BankSchema.BASE_DB_NAME)
 })

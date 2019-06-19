@@ -7,7 +7,7 @@ import pandas as pd
 
 from config.files import files
 from self_finance.back_end.data import Data
-from self_finance.constants import Schema
+from self_finance.constants import BankSchema
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +16,7 @@ class RawInsights:
     class Dynammic:
         @staticmethod
         def _agg_top_n_income_and_expense_categories(df, n):
-            counter = Counter(list(df[Schema.SCHEMA_BANK_C1.name].values))
+            counter = Counter(list(df[BankSchema.SCHEMA_BANK_C1.name].values))
             return counter.most_common(n)
 
         @staticmethod
@@ -24,7 +24,7 @@ class RawInsights:
             df = Data.get_table_as_df(date_range, table_name, db_path=db_path)
             if df is None or df.shape[0] == 0:
                 return None
-            df_filter = df[df[Schema.SCHEMA_BANK_INC_OR_EXP.name] == inc_or_exp]
+            df_filter = df[df[BankSchema.SCHEMA_BANK_INC_OR_EXP.name] == inc_or_exp]
             most_common_filter = RawInsights.Dynammic._agg_top_n_income_and_expense_categories(df_filter, n)
             return pd.DataFrame(most_common_filter, columns=['category', 'frequency'])
 
@@ -51,11 +51,11 @@ class RawInsights:
         def _agg_income_and_expenses_by_month(df, month):
             sum_income, sum_expenses = 0, 0
             for index, row in df.iterrows():
-                if row[Schema.SCHEMA_BANK_DATE.name].month == month:
-                    if row[Schema.SCHEMA_BANK_AMOUNT.name] > 0:
-                        sum_income += row[Schema.SCHEMA_BANK_AMOUNT.name]
+                if row[BankSchema.SCHEMA_BANK_DATE.name].month == month:
+                    if row[BankSchema.SCHEMA_BANK_AMOUNT.name] > 0:
+                        sum_income += row[BankSchema.SCHEMA_BANK_AMOUNT.name]
                     else:
-                        sum_expenses += row[Schema.SCHEMA_BANK_AMOUNT.name]
+                        sum_expenses += row[BankSchema.SCHEMA_BANK_AMOUNT.name]
             return sum_income, sum_expenses
 
         @staticmethod
@@ -64,7 +64,7 @@ class RawInsights:
             df = Data.get_table_as_df(date_range, table_name, db_path=db_path)
             if df is None or df.shape[0] == 0:
                 return None
-            df[Schema.SCHEMA_BANK_DATE.name] = pd.to_datetime(df[Schema.SCHEMA_BANK_DATE.name])
+            df[BankSchema.SCHEMA_BANK_DATE.name] = pd.to_datetime(df[BankSchema.SCHEMA_BANK_DATE.name])
             this_month = _overide_month or datetime.date.today().month
             last_month = this_month - 1 or 12
 

@@ -8,6 +8,7 @@ from pandas.io.json import json_normalize
 
 from config.files import files
 from self_finance.back_end.sqlite_helper import SqliteHelper
+from self_finance.constants import BankSchema
 from self_finance.constants import Schema
 
 logger = logging.getLogger(__name__)
@@ -31,20 +32,22 @@ class Data:
         obj: when a new table comes in, preprocess the columns that are generally not
         changed by the user, such as converting the date column into a standard readable format
         """
-        df[Schema.SCHEMA_BANK_DATE.name] = df.apply(
-            lambda row: dateparser.parse(row[Schema.SCHEMA_BANK_DATE.name]).date(), axis=1)
-        df[Schema.SCHEMA_BANK_INC_OR_EXP.name] = df.apply(lambda row: 'expense' if
-        row[Schema.SCHEMA_BANK_AMOUNT.name] < 0 else 'income', axis=1)
+        df[BankSchema.SCHEMA_BANK_DATE.name] = df.apply(
+            lambda row: dateparser.parse(row[BankSchema.SCHEMA_BANK_DATE.name]).date(), axis=1)
+        # counter intuitive :: - == income and + == expense, so reverse it
+        df[BankSchema.SCHEMA_BANK_AMOUNT.name] = df[BankSchema.SCHEMA_BANK_AMOUNT.name] * -1
+        df[BankSchema.SCHEMA_BANK_INC_OR_EXP.name] = df.apply(lambda row: 'expense' if
+        row[BankSchema.SCHEMA_BANK_AMOUNT.name] < 0 else 'income', axis=1)
 
         # add additional columns if they are missing
         # note the caveat - when the dataframe source comes from a csv, it needs to be reevaluated
         list_categories = [eval(elm) if isinstance(elm, str) else elm for elm in
-                           list(df[Schema.SCHEMA_FULL_CATEGORY.name])]
+                           list(df[BankSchema.SCHEMA_FULL_CATEGORY.name])]
 
         def add_category_col_to_db(cat_name, cat_index):
             df[cat_name] = [c[cat_index] if cat_index < len(c) else None for c in list_categories]
 
-        cat_cols = [Schema.SCHEMA_BANK_C1.name, Schema.SCHEMA_BANK_C2.name, Schema.SCHEMA_BANK_C3.name]
+        cat_cols = [BankSchema.SCHEMA_BANK_C1.name, BankSchema.SCHEMA_BANK_C2.name, BankSchema.SCHEMA_BANK_C3.name]
         for cat_name, i in zip(cat_cols, range(len(cat_cols))):
             add_category_col_to_db(cat_name, i)
         return df
@@ -53,7 +56,7 @@ class Data:
     def preprocess_data(df):
         df = Data._column_preprocessing_pt1(df)
         df = Data._column_preprocessing_pt2(df)
-        df_bank = df[Schema.get_names(Schema.get_schema_table(Schema.BANK_TB_NAME))]
+        df_bank = df[Schema.get_names(BankSchema.get_schema_table(BankSchema.BANK_TB_NAME))]
         return df_bank
 
     @staticmethod
@@ -69,18 +72,18 @@ class Data:
             data_column = list(tmp_df[column_pull])
             data_column_evaled = [eval(d) if isinstance(d, str) else d for d in data_column]
             df = json_normalize(data_column_evaled)
-            df[Schema.SCHEMA_BANK_TRANSACTION_ID.name] = tmp_df[Schema.SCHEMA_BANK_TRANSACTION_ID.name]
+            df[BankSchema.SCHEMA_BANK_TRANSACTION_ID.name] = tmp_df[BankSchema.SCHEMA_BANK_TRANSACTION_ID.name]
             return df
 
         # if this is an update for example, the user will be working with the the public table
         # with no mention of location or meta table information
         locations_df, payment_meta_df, bank_df = None, None, None
-        if Schema.SCHEMA_FULL_LOCATION.name in tmp_df.columns.values:
-            locations_df = eval_json_and_add_transaction_id(Schema.SCHEMA_FULL_LOCATION.name)
-        if Schema.SCHEMA_FULL_PAYMENT_META.name in tmp_df.columns.values:
-            payment_meta_df = eval_json_and_add_transaction_id(Schema.SCHEMA_FULL_PAYMENT_META.name)
+        if BankSchema.SCHEMA_FULL_LOCATION.name in tmp_df.columns.values:
+            locations_df = eval_json_and_add_transaction_id(BankSchema.SCHEMA_FULL_LOCATION.name)
+        if BankSchema.SCHEMA_FULL_PAYMENT_META.name in tmp_df.columns.values:
+            payment_meta_df = eval_json_and_add_transaction_id(BankSchema.SCHEMA_FULL_PAYMENT_META.name)
         # preprocess the date only on the condition that the schema match the original full schema (from plaid api)
-        if set(Schema.get_names(Schema.get_schema_table(Schema._FULL_TB_NAME))) - set(tmp_df.columns.values) == set():
+        if set(Schema.get_names(BankSchema.get_schema_table(BankSchema._FULL_TB_NAME))) - set(tmp_df.columns.values) == set():
             bank_df = Data.preprocess_data(tmp_df)
         else:
             # otherwise this is an update operatation
@@ -88,10 +91,10 @@ class Data:
         # merge the static and close the connection
         tmp_tb_id = '__tmp'
         conn = None
-        inline_tb_names = [Schema.LOCATION_TB_NAME, Schema.PAYMENT_META_TB_NAME, Schema.BANK_TB_NAME]
+        inline_tb_names = [BankSchema.LOCATION_TB_NAME, BankSchema.PAYMENT_META_TB_NAME, BankSchema.BANK_TB_NAME]
         for df, tb_name in zip([locations_df, payment_meta_df, bank_df], inline_tb_names):
             if df is not None and df.shape[0] > 0:
-                column_order = Schema.get_names(Schema.get_schema_table(tb_name))
+                column_order = Schema.get_names(BankSchema.get_schema_table(tb_name))
                 df = df[column_order]
                 columns_schema = ', '.join(column_order)
                 conn = sqlite3.connect(db_name)
@@ -121,18 +124,18 @@ class Data:
 
     @staticmethod
     def truncate_all_tables():
-        for table in Schema.get_all_table_names():
+        for table in BankSchema.get_all_table_names():
             Data.truncate(table)
 
     @staticmethod
-    def get_table_as_df(date_range, table_name, order_by_col_name=Schema.SCHEMA_BANK_DATE.name,
+    def get_table_as_df(date_range, table_name, order_by_col_name=BankSchema.SCHEMA_BANK_DATE.name,
                         order='DESC', db_path=files['base_db']):
         """
         obj: a common request for the application. get a table from base db using two high
         level parameters
         """
         query_select = f"SELECT * FROM {table_name}\n"
-        query_where = f"WHERE DATE({Schema.SCHEMA_BANK_DATE.name}) BETWEEN " \
+        query_where = f"WHERE DATE({BankSchema.SCHEMA_BANK_DATE.name}) BETWEEN " \
             f"'{date_range.start}' AND '{date_range.end}'\n" if date_range else ''
         query_order = f"ORDER BY {order_by_col_name} {order}" if order else ''
         query = query_select + query_where + query_order
@@ -149,8 +152,8 @@ class Data:
         """
         obj: identify unlabeled data
         """
-        query = f"SELECT * FROM {Schema.BANK_TB_NAME}\n" \
-            f"WHERE {Schema.SCHEMA_BANK_C1.name} IS NULL OR {Schema.SCHEMA_BANK_C2.name}=''"
+        query = f"SELECT * FROM {BankSchema.BANK_TB_NAME}\n" \
+            f"WHERE {BankSchema.SCHEMA_BANK_C1.name} IS NULL OR {BankSchema.SCHEMA_BANK_C2.name}=''"
         return SqliteHelper.execute_sqlite(query, files['base_db'], as_dataframe=as_dataframe)
 
     @staticmethod
@@ -160,7 +163,7 @@ class Data:
         """
 
         def start():
-            query = f"UPDATE {Schema.BANK_TB_NAME}\n"
+            query = f"UPDATE {BankSchema.BANK_TB_NAME}\n"
             query += "SET "
             return query
 
@@ -179,28 +182,28 @@ class Data:
 
     @staticmethod
     def get_most_recent_transaction_date(tb_name, db_path):
-        sql_query = f"SELECT {Schema.SCHEMA_BANK_DATE.name} FROM {tb_name}" \
-            f" ORDER BY DATE({Schema.SCHEMA_BANK_DATE.name}) DESC LIMIT 1"
+        sql_query = f"SELECT {BankSchema.SCHEMA_BANK_DATE.name} FROM {tb_name}" \
+            f" ORDER BY DATE({BankSchema.SCHEMA_BANK_DATE.name}) DESC LIMIT 1"
         df = SqliteHelper.execute_sqlite(sql_query, db_path, as_dataframe=True)
         # empty table - no most recent transaction
         if df.shape[0] != 1:
             return None
-        return df[Schema.SCHEMA_BANK_DATE.name][0]
+        return df[BankSchema.SCHEMA_BANK_DATE.name][0]
 
     @staticmethod
     def get_most_recent_html_from_id(image_id, db_path=files['base_db']):
-        sql_query = f"SELECT {Schema.SCHEMA_PLOT_CACHE_HTML.name} FROM {Schema.PLOT_CACHE_TB_NAME}" \
-            f" WHERE {Schema.SCHEMA_PLOT_CACHE_FULL_TITLE.name}='{image_id}'" \
-            f" ORDER BY {Schema._SCHEMA_PLOT_CACHE_TIMESTAMP.name} DESC LIMIT 1"
+        sql_query = f"SELECT {BankSchema.SCHEMA_PLOT_CACHE_HTML.name} FROM {BankSchema.PLOT_CACHE_TB_NAME}" \
+            f" WHERE {BankSchema.SCHEMA_PLOT_CACHE_FULL_TITLE.name}='{image_id}'" \
+            f" ORDER BY {BankSchema._SCHEMA_PLOT_CACHE_TIMESTAMP.name} DESC LIMIT 1"
         df = SqliteHelper.execute_sqlite(sql_query, db_path, as_dataframe=True)
-        return None if df is None or df.shape[0] <= 0 else df[Schema.SCHEMA_PLOT_CACHE_HTML.name][0]
+        return None if df is None or df.shape[0] <= 0 else df[BankSchema.SCHEMA_PLOT_CACHE_HTML.name][0]
 
     @staticmethod
     def get_heatmap_df(date_range, db_path=files['base_db']):
         sql_query = f"""
-        SELECT {Schema.SCHEMA_LOCATION_LON.name}, {Schema.SCHEMA_LOCATION_LAT.name}, {Schema.SCHEMA_BANK_AMOUNT.name}
-        FROM {Schema.BANK_TB_NAME} INNER JOIN {Schema.LOCATION_TB_NAME} ON {Schema.BANK_TB_NAME}.{Schema.SCHEMA_BANK_TRANSACTION_ID.name}
-        WHERE DATE({Schema.SCHEMA_BANK_DATE.name}) BETWEEN '{date_range.start}' AND '{date_range.end}'
+        SELECT {BankSchema.SCHEMA_LOCATION_LON.name}, {BankSchema.SCHEMA_LOCATION_LAT.name}, {BankSchema.SCHEMA_BANK_AMOUNT.name}
+        FROM {BankSchema.BANK_TB_NAME} INNER JOIN {BankSchema.LOCATION_TB_NAME} ON {BankSchema.BANK_TB_NAME}.{BankSchema.SCHEMA_BANK_TRANSACTION_ID.name}
+        WHERE DATE({BankSchema.SCHEMA_BANK_DATE.name}) BETWEEN '{date_range.start}' AND '{date_range.end}'
         """
         df = SqliteHelper.execute_sqlite(sql_query, db_path, as_dataframe=True)
         return None if df is None or df.shape[0] <= 0 else df
@@ -209,11 +212,11 @@ class Data:
     def invalidate_cache(db_path=files['base_db']):
         logging.info('Invalidating plot cache by clearing contents.')
         sql_query = f"""
-        DELETE FROM {Schema.PLOT_CACHE_TB_NAME};
+        DELETE FROM {BankSchema.PLOT_CACHE_TB_NAME};
         """
         SqliteHelper.execute_sqlite(sql_query, db_path)
 
     @staticmethod
     def cast_df_to_schema(df, table_id):
-        column_to_type_map = {sch.name: sch.type for sch in Schema.get_schema_table(table_id)}
+        column_to_type_map = {sch.name: sch.type for sch in BankSchema.get_schema_table(table_id)}
         return df.astype(column_to_type_map)

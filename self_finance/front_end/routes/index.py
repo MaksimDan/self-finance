@@ -10,7 +10,7 @@ from flask import render_template, request, flash
 
 from config.files import files
 from self_finance.back_end.data import Data
-from self_finance.constants import Schema
+from self_finance.constants import BankSchema
 from self_finance.constants import App
 from self_finance.front_end import app
 from self_finance.front_end.routes.state import State
@@ -68,12 +68,12 @@ def get_access_token_and_update_transaction_history():
 
 
 def update_transaction_history():
-    mrtd_org = Data.get_most_recent_transaction_date(Schema.BANK_TB_NAME, files['base_db'])
-    mrtd = Schema.DATE_FORMAT.format(dateparser.parse(mrtd_org).date()) if mrtd_org else Schema.DATE_FORMAT.format(
+    mrtd_org = Data.get_most_recent_transaction_date(BankSchema.BANK_TB_NAME, files['base_db'])
+    mrtd = BankSchema.DATE_FORMAT.format(dateparser.parse(mrtd_org).date()) if mrtd_org else BankSchema.DATE_FORMAT.format(
         datetime.date.min)
 
     # update on transactions only following the mrtd
-    start_date, end_date = mrtd, Schema.DATE_FORMAT.format(datetime.datetime.now())
+    start_date, end_date = mrtd, BankSchema.DATE_FORMAT.format(datetime.datetime.now())
     full_df = get_transactions(start_date, end_date)
 
     # TODO - this stuff isn't getting flashed
@@ -85,7 +85,7 @@ def update_transaction_history():
         if full_df is None or full_df.shape[0] == 0:
             flash(p4, 'info')
             return _standard_render()
-        logger.info(f'Merging transactions into {Schema.BANK_TB_NAME} database.')
+        logger.info(f'Merging transactions into {BankSchema.BANK_TB_NAME} database.')
         Data.merge(full_df, files['base_db'])
         if not mrtd_org:
             flash(p1 + p2, 'info')

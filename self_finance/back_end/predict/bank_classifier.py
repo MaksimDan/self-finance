@@ -11,7 +11,7 @@ from sklearn.preprocessing import StandardScaler
 
 from config.files import dirs
 from self_finance.back_end.data import Data
-from self_finance.constants import Schema
+from self_finance.constants import BankSchema
 
 logger = logging.getLogger(__name__)
 
@@ -37,14 +37,14 @@ class BankClassifier:
         assert self.model_df.shape[0] > 0, "No bank static was found."
 
     # training information columns and  output column names
-    _model_X_columns = Schema.get_table_chase_X_fields()
-    _model_selector_y = {Schema.BASE_MODEL_C1_NAME: Schema.SCHEMA_CHASE_C1,
-                         Schema.BASE_MODEL_C2_NAME: Schema.SCHEMA_CHASE_C2}
+    _model_X_columns = BankSchema.get_table_chase_X_fields()
+    _model_selector_y = {BankSchema.BASE_MODEL_C1_NAME: BankSchema.SCHEMA_CHASE_C1,
+                         BankSchema.BASE_MODEL_C2_NAME: BankSchema.SCHEMA_CHASE_C2}
 
     def _can_train(self, model_name):
         # check that X exists and that there are y-labels
-        y_map = {Schema.BASE_MODEL_C1_NAME: 'c1',
-                 Schema.BASE_MODEL_C2_NAME: 'c2'}
+        y_map = {BankSchema.BASE_MODEL_C1_NAME: 'c1',
+                 BankSchema.BASE_MODEL_C2_NAME: 'c2'}
         return self.model_df.shape[0] > 0 and \
                any(val for val in self.model_df[y_map[model_name]].values)
 

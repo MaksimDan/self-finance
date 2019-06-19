@@ -14,7 +14,7 @@ from folium.plugins import HeatMap
 
 from config.files import files
 from self_finance.back_end.data import Data
-from self_finance.constants import Schema
+from self_finance.constants import BankSchema
 from self_finance.constants import Visuals
 
 logger = logging.getLogger(__name__)
@@ -32,8 +32,8 @@ class _PlotHelper:
         return group_cumsum
 
     @staticmethod
-    def cumsum_line_plot_by_group(main_df, fig, ax, hue, title, x=Schema.SCHEMA_BANK_DATE.name,
-                                  y=Schema.SCHEMA_BANK_AMOUNT.name, ndate_labels=10):
+    def cumsum_line_plot_by_group(main_df, fig, ax, hue, title, x=BankSchema.SCHEMA_BANK_DATE.name,
+                                  y=BankSchema.SCHEMA_BANK_AMOUNT.name, ndate_labels=10):
         df_y, df_hue = list(main_df[y].values), list(main_df[hue].values)
         cumsum_hue = _PlotHelper.cumsum_by_conditional_group(df_y, df_hue)
         tmp_df = pd.DataFrame({y: reduce(lambda l1, l2: l1 + l2, cumsum_hue.values()),
@@ -67,33 +67,33 @@ class _Plot:
 
         fig, ax = plt.subplots(figsize=figsize)
         if plot_type == 'line':
-            df_amount = list(df[Schema.SCHEMA_BANK_AMOUNT.name].values)
-            df_type = list(df[Schema.SCHEMA_BANK_INC_OR_EXP.name].values)
+            df_amount = list(df[BankSchema.SCHEMA_BANK_AMOUNT.name].values)
+            df_type = list(df[BankSchema.SCHEMA_BANK_INC_OR_EXP.name].values)
             cum_sum_inc_or_exp = _PlotHelper.cumsum_by_conditional_group(df_amount, df_type)
             cum_sum_income, cum_sum_expense = cum_sum_inc_or_exp['income'], cum_sum_inc_or_exp['expense']
             cum_sum_profit = [inc - abs(exp) for inc, exp in zip(cum_sum_income, cum_sum_expense)]
-            tmp_df = pd.DataFrame({Schema.SCHEMA_BANK_AMOUNT.name: cum_sum_expense + cum_sum_income + cum_sum_profit,
+            tmp_df = pd.DataFrame({BankSchema.SCHEMA_BANK_AMOUNT.name: cum_sum_expense + cum_sum_income + cum_sum_profit,
                                    'type': ['expense'] * len(cum_sum_expense) + ['income'] * len(cum_sum_income) +
                                            ['net'] * len(cum_sum_profit),
-                                   Schema.SCHEMA_BANK_DATE.name: list(
-                                       df[Schema.SCHEMA_BANK_DATE.name].values) * 3})
+                                   BankSchema.SCHEMA_BANK_DATE.name: list(
+                                       df[BankSchema.SCHEMA_BANK_DATE.name].values) * 3})
             # ensure x label for datetime is not overcrowded
             xloc = plt.MaxNLocator(10)
             ax.xaxis.set_major_locator(xloc)
-            sns.lineplot(x=Schema.SCHEMA_BANK_DATE.name, y=Schema.SCHEMA_BANK_AMOUNT.name,
+            sns.lineplot(x=BankSchema.SCHEMA_BANK_DATE.name, y=BankSchema.SCHEMA_BANK_AMOUNT.name,
                          hue='type', data=tmp_df)
             fig.autofmt_xdate()
         elif plot_type == 'violin':
-            sns.violinplot(x=Schema.SCHEMA_BANK_INC_OR_EXP.name, y=Schema.SCHEMA_BANK_AMOUNT.name,
-                           hue=Schema.SCHEMA_BANK_INC_OR_EXP.name, data=df, showfliers=False)
+            sns.violinplot(x=BankSchema.SCHEMA_BANK_INC_OR_EXP.name, y=BankSchema.SCHEMA_BANK_AMOUNT.name,
+                           hue=BankSchema.SCHEMA_BANK_INC_OR_EXP.name, data=df, showfliers=False)
         elif plot_type == 'bar':
-            sns.barplot(x=Schema.SCHEMA_BANK_INC_OR_EXP.name, y=Schema.SCHEMA_BANK_AMOUNT.name,
+            sns.barplot(x=BankSchema.SCHEMA_BANK_INC_OR_EXP.name, y=BankSchema.SCHEMA_BANK_AMOUNT.name,
                         data=df, estimator=np.sum)
         plt.title(title)
         return fig
 
     @staticmethod
-    def _filter_df_by_n_highest_aggregates(df, key_column, agg_column=Schema.SCHEMA_BANK_AMOUNT.name, n=8):
+    def _filter_df_by_n_highest_aggregates(df, key_column, agg_column=BankSchema.SCHEMA_BANK_AMOUNT.name, n=8):
         """
         obj: return a filtered dataframe allowing only the `n` highest elements in `column`
         to exist.
@@ -121,18 +121,18 @@ class _Plot:
                                     kwargs.get('title', None)
 
         fig, ax = plt.subplots(figsize=figsize)
-        df = df[df[Schema.SCHEMA_BANK_INC_OR_EXP.name] == inc_or_exp.lower()]
+        df = df[df[BankSchema.SCHEMA_BANK_INC_OR_EXP.name] == inc_or_exp.lower()]
         if plot_type == 'line':
-            df = _Plot._filter_df_by_n_highest_aggregates(df, Schema.SCHEMA_BANK_C1.name)
-            _PlotHelper.cumsum_line_plot_by_group(df, fig, ax, Schema.SCHEMA_BANK_C1.name, 'Income by Category')
+            df = _Plot._filter_df_by_n_highest_aggregates(df, BankSchema.SCHEMA_BANK_C1.name)
+            _PlotHelper.cumsum_line_plot_by_group(df, fig, ax, BankSchema.SCHEMA_BANK_C1.name, 'Income by Category')
         elif plot_type == 'violin':
-            df = _Plot._filter_df_by_n_highest_aggregates(df, Schema.SCHEMA_BANK_C1.name, n=4)
-            sns.violinplot(x=Schema.SCHEMA_BANK_C1.name, y=Schema.SCHEMA_BANK_AMOUNT.name,
-                           hue=Schema.SCHEMA_BANK_C2.name, data=df, showfliers=False)
+            df = _Plot._filter_df_by_n_highest_aggregates(df, BankSchema.SCHEMA_BANK_C1.name, n=4)
+            sns.violinplot(x=BankSchema.SCHEMA_BANK_C1.name, y=BankSchema.SCHEMA_BANK_AMOUNT.name,
+                           hue=BankSchema.SCHEMA_BANK_C2.name, data=df, showfliers=False)
         elif plot_type == 'bar':
-            df = _Plot._filter_df_by_n_highest_aggregates(df, Schema.SCHEMA_BANK_C1.name, n=4)
-            sns.barplot(x=Schema.SCHEMA_BANK_C1.name, y=Schema.SCHEMA_BANK_AMOUNT.name,
-                        hue=Schema.SCHEMA_BANK_C2.name, data=df, estimator=np.sum)
+            df = _Plot._filter_df_by_n_highest_aggregates(df, BankSchema.SCHEMA_BANK_C1.name, n=4)
+            sns.barplot(x=BankSchema.SCHEMA_BANK_C1.name, y=BankSchema.SCHEMA_BANK_AMOUNT.name,
+                        hue=BankSchema.SCHEMA_BANK_C2.name, data=df, estimator=np.sum)
         plt.legend(loc="upper left", bbox_to_anchor=(1, 1))
         plt.title(title)
         return fig
@@ -166,11 +166,11 @@ class _Plot:
         tmp_const = 'count'
         df[tmp_const] = [1 for _ in range(0, df.shape[0])]
         if plot_type == 'line':
-            df = _Plot._filter_df_by_n_highest_frequency(df, Schema.SCHEMA_BANK_C1.name)
-            _PlotHelper.cumsum_line_plot_by_group(df, fig, ax, Schema.SCHEMA_BANK_C1.name, title, y=tmp_const)
+            df = _Plot._filter_df_by_n_highest_frequency(df, BankSchema.SCHEMA_BANK_C1.name)
+            _PlotHelper.cumsum_line_plot_by_group(df, fig, ax, BankSchema.SCHEMA_BANK_C1.name, title, y=tmp_const)
         elif plot_type == 'bar':
-            df = _Plot._filter_df_by_n_highest_frequency(df, Schema.SCHEMA_BANK_C1.name, 4)
-            sns.barplot(x=Schema.SCHEMA_BANK_C1.name, y=tmp_const, hue=Schema.SCHEMA_BANK_C2.name, data=df,
+            df = _Plot._filter_df_by_n_highest_frequency(df, BankSchema.SCHEMA_BANK_C1.name, 4)
+            sns.barplot(x=BankSchema.SCHEMA_BANK_C1.name, y=tmp_const, hue=BankSchema.SCHEMA_BANK_C2.name, data=df,
                         estimator=np.sum)
         plt.legend(loc="upper left", bbox_to_anchor=(1, 1))
         plt.title(title)
@@ -183,13 +183,13 @@ class _Plot:
         fig, ax = plt.subplots(figsize=figsize)
         ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
 
-        df = df[df[Schema.SCHEMA_BANK_INC_OR_EXP.name] == inc_or_exp.lower()]
+        df = df[df[BankSchema.SCHEMA_BANK_INC_OR_EXP.name] == inc_or_exp.lower()]
         pd.options.mode.chained_assignment = None
-        df[Schema.SCHEMA_BANK_DATE.name] = pd.to_datetime(df[Schema.SCHEMA_BANK_DATE.name])
+        df[BankSchema.SCHEMA_BANK_DATE.name] = pd.to_datetime(df[BankSchema.SCHEMA_BANK_DATE.name])
         df.groupby(
-            [Schema.SCHEMA_BANK_C1.name, pd.Grouper(key=Schema.SCHEMA_BANK_DATE.name, freq='M')]).count().reset_index()
-        sns.barplot(x=Schema.SCHEMA_BANK_DATE.name, y=Schema.SCHEMA_BANK_AMOUNT.name,
-                    hue=Schema.SCHEMA_BANK_C1.name, data=df, estimator=np.sum)
+            [BankSchema.SCHEMA_BANK_C1.name, pd.Grouper(key=BankSchema.SCHEMA_BANK_DATE.name, freq='M')]).count().reset_index()
+        sns.barplot(x=BankSchema.SCHEMA_BANK_DATE.name, y=BankSchema.SCHEMA_BANK_AMOUNT.name,
+                    hue=BankSchema.SCHEMA_BANK_C1.name, data=df, estimator=np.sum)
         xloc = plt.MaxNLocator(10)
         ax.xaxis.set_major_locator(xloc)
         plt.legend(loc="upper left", bbox_to_anchor=(1, 1))
@@ -216,9 +216,9 @@ class _Plot:
             return None
         hm_df = hm_df.dropna()
         hmap = folium.Map(zoom_start=6, location=Visuals.HM_START_LAT_LON)
-        hm_wide = HeatMap(list(zip(hm_df[Schema.SCHEMA_LOCATION_LAT.name].values,
-                                   hm_df[Schema.SCHEMA_LOCATION_LON.name].values,
-                                   hm_df[Schema.SCHEMA_BANK_AMOUNT.name].values)),
+        hm_wide = HeatMap(list(zip(hm_df[BankSchema.SCHEMA_LOCATION_LAT.name].values,
+                                   hm_df[BankSchema.SCHEMA_LOCATION_LON.name].values,
+                                   hm_df[BankSchema.SCHEMA_BANK_AMOUNT.name].values)),
                           min_opacity=0.2,
                           radius=17, blur=15,
                           max_zoom=1)
